@@ -1,0 +1,16 @@
+# /etc/systemd/system/apebot.service  (alternative to docker-compose)
+[Unit]
+Description=apebot paper/live trader
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=apebot
+WorkingDirectory=/opt/apebot
+EnvironmentFile=/opt/apebot/.env
+ExecStart=/opt/apebot/.venv/bin/apebot run -c /opt/apebot/config.yaml
+Restart=always
+RestartSec=15
+
+[Install]
+WantedBy=multi-user.target

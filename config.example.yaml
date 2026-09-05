@@ -1,0 +1,82 @@
+# apebot configuration. Copy to config.yaml and fill in the addresses.
+# Secrets go in .env (see .env.example), never here.
+
+mode: paper                 # the bot starts in paper regardless; "live" only happens through the gate
+poll_interval_sec: 30
+data_dir: ./data
+paper_quote_usd: 5000       # paper account's starting stablecoin balance
+
+chain:
+  rpc_url: https://rpc.mainnet.chain.robinhood.com   # shared + rate limited; use Alchemy/QuickNode for real runs
+  chain_id: 4663
+  # Uniswap v3 periphery on Robinhood Chain. Copy from
+  # https://developers.uniswap.org/docs/protocols/v3/deployments/v3-robinhood-chain-deployments
+  factory: ""               # UniswapV3Factory
+  quoter_v2: ""             # QuoterV2
+  swap_router02: ""         # SwapRouter02 (only needed for live)
+  quote_token: ""           # USDG (or the stable the stock-token pools are quoted in)
+  fee_tiers: [500, 3000, 10000]
+  gas_cost_usd_per_swap: 0.05
+  eth_price_usd: 3000
+  max_gas_gwei: 5
+
+reference:
+  provider: finnhub         # finnhub (free, real-time US) | polygon (paid last-trade)
+  max_staleness_sec: 900    # during the regular session, reject quotes older than this
+  poll_min_interval_sec: 10
+
+strategy:
+  sell_entry_premium: 0.03      # sell inventory when the pool pays >= 3% over reference (after impact+fee)
+  buy_entry_discount: 0.03      # buy from the pool when it is >= 3% under reference
+  closed_market_extra: 0.01     # add 1% to both thresholds while the market is closed
+  exit_band: 0.005              # close when the pool is back within 0.5% of reference
+  stop_loss: 0.06               # close if the pool moves 6% further against the leg
+  force_close_after_open_min: 45
+  intraday_max_hold_min: 120
+  tranche_usd: 250
+  max_legs_per_ticker: 3
+  cooldown_sec: 300
+  enable_sell_side: true
+  enable_buy_side: true
+  slippage_buffer: 0.003
+
+risk:
+  daily_loss_limit_usd: 50
+  max_drawdown_halt_pct: 0.10
+  max_consecutive_errors: 10
+  demote_live_to_paper_on_halt: true
+
+gate:                         # what the paper record must show before live is allowed
+  min_days: 14
+  min_round_trips: 20
+  min_net_pnl_usd: 0
+  min_profit_factor: 1.5
+  max_drawdown_pct: 0.05
+  min_win_rate: 0.55
+  max_error_rate: 0.02
+  min_feed_uptime: 0.95
+  auto_promote: false         # true = flip to live by itself once the gate passes (needs APEBOT_PRIVATE_KEY)
+
+notify:
+  daily_report_hour_utc: 7
+  telegram_enabled: true
+
+# Verified Stock Token contract addresses. There are hundreds of fake tickers on the chain:
+# take the address from the Robinhood docs / robinscan.io token list, never from a pool listing.
+tickers:
+  - symbol: HIMS
+    token: ""
+    paper_inventory: 12
+  - symbol: PLTR
+    token: ""
+    paper_inventory: 6
+  - symbol: MSTR
+    token: ""
+    paper_inventory: 3
+  - symbol: HOOD
+    token: ""
+    paper_inventory: 10
+  - symbol: COIN
+    token: ""
+    paper_inventory: 4
+    enabled: false

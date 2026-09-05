@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "apebot"
+version = "0.1.0"
+description = "Autonomous paper-then-live premium/discount trader for tokenized stocks on Robinhood Chain (Uniswap v3 pools)."
+requires-python = ">=3.11"
+dependencies = [
+  "web3>=7,<9",
+  "pydantic>=2,<3",
+  "httpx>=0.27",
+  "PyYAML>=6",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff"]
+
+[project.scripts]
+apebot = "apebot.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 130
+
+[tool.ruff.lint]
+select = ["E", "F", "W"]
+ignore = ["E741"]
